@@ -1,0 +1,39 @@
+self.storage['LastBlockButtonWasPressed'] = -1
+
+def process(MIN_AMOUNT_REQUIRED):
+
+    # If someone has already collected all the deposits, stop playing
+    if self.storage[GAME_OVER]:
+        return(-50)
+
+    # If it's been more than 3 blocks since the last time someone played,
+    # send everyone's deposits to the last player
+    if self.storage['LastBlockButtonWasPressed'] > -1 and block.number - self.storage['LastBlockButtonWasPressed'] > 3:
+        # claimTreasure
+        send(self.storage['LastPersonToPressTheButton'], self.balance)
+        self.storage[GAME_OVER] = 1
+        return(2)
+
+    # Make sure that the Button Presser sent enough ether to be able to participate in the game
+    # If they sent less than 100 wei's, refund them their money
+    if msg.value < MIN_AMOUNT_REQUIRED:
+        send(msg.sender, msg.value)
+        return(-49)
+
+    # People can only press The button once
+    if self.storage[msg.sender]:
+        return(-48)
+
+    # Mark the current person as having already pressed the button
+    self.storage[msg.sender] = msg.sender
+
+    # Record the last time this person pressed the button
+    self.storage['LastBlockButtonWasPressed'] = block.number
+    self.storage['LastPersonToPressTheButton'] = msg.sender
+
+    return(1)
+
+
+# Mostly used for testing purposes
+def endGame():
+    self.storage[GAME_OVER] = 1
